@@ -7,10 +7,19 @@ import type {
   DoseLog,
 } from '../types';
 
+const LIVE_RENDER_API = 'https://medicare-family.onrender.com/api';
+
 const getApiBase = (): string => {
-  let url = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').trim();
-  url = url.replace(/\/+$/, '');
-  return url.endsWith('/api') ? url : `${url}/api`;
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && envUrl.trim() !== '') {
+    let url = envUrl.trim().replace(/\/+$/, '');
+    return url.endsWith('/api') ? url : `${url}/api`;
+  }
+  // If running in browser and NOT localhost, automatically use live Render backend
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return LIVE_RENDER_API;
+  }
+  return 'http://localhost:5000/api';
 };
 
 const API_BASE = getApiBase();
