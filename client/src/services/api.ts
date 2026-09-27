@@ -7,7 +7,13 @@ import type {
   DoseLog,
 } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const getApiBase = (): string => {
+  let url = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').trim();
+  url = url.replace(/\/+$/, '');
+  return url.endsWith('/api') ? url : `${url}/api`;
+};
+
+const API_BASE = getApiBase();
 
 class ApiService {
   private getToken(): string | null {
