@@ -1,0 +1,78 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  name          String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  familyMembers FamilyMember[]
+
+  @@map("users")
+}
+
+model FamilyMember {
+  id          String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  relation    String     // e.g. "Father", "Mother", "Self", "Child", "Grandparent", "Spouse"
+  age         Int
+  avatarColor String     @default("emerald") // emerald, sky, purple, rose, amber, indigo
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  medicines   Medicine[]
+
+  @@map("family_members")
+}
+
+model Medicine {
+  id           String           @id @default(uuid())
+  memberId     String           @map("member_id")
+  member       FamilyMember     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  name         String
+  dosage       String           // e.g. "500mg", "1 tablet", "2 drops", "10ml"
+  instructions String?          // e.g. "After breakfast", "With water", "Before bed"
+  startDate    DateTime         @map("start_date")
+  endDate      DateTime?        @map("end_date")
+  colorTag     String           @default("blue") // blue, emerald, purple, amber, rose, cyan
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  timings      MedicineTiming[]
+  doseLogs     DoseLog[]
+
+  @@map("medicines")
+}
+
+model MedicineTiming {
+  id         String   @id @default(uuid())
+  medicineId String   @map("medicine_id")
+  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  time       String   // Format "HH:mm" (24-hour, e.g. "08:00", "13:30", "20:00")
+  createdAt  DateTime @default(now())
+
+  @@map("medicine_timings")
+}
+
+model DoseLog {
+  id            String    @id @default(uuid())
+  medicineId    String    @map("medicine_id")
+  medicine      Medicine  @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  scheduledDate String    @map("scheduled_date") // Format "YYYY-MM-DD"
+  scheduledTime String    @map("scheduled_time") // Format "HH:mm"
+  status        String    @default("pending")    // "pending" | "taken" | "skipped" | "missed"
+  takenAt       DateTime? @map("taken_at")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([medicineId, scheduledDate, scheduledTime])
+  @@map("dose_logs")
+}
