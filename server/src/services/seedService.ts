@@ -2,8 +2,80 @@ import bcrypt from 'bcryptjs';
 import { format, subDays, addDays } from 'date-fns';
 import prisma from '../prisma.js';
 
+async function ensureTables(): Promise<void> {
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "users" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "email" TEXT NOT NULL UNIQUE,
+        "password" TEXT NOT NULL,
+        "name" TEXT NOT NULL,
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "family_members" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "userId" TEXT NOT NULL,
+        "name" TEXT NOT NULL,
+        "relation" TEXT NOT NULL,
+        "age" INTEGER NOT NULL,
+        "avatarColor" TEXT NOT NULL DEFAULT 'emerald',
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "family_members_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+      );
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "medicines" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "member_id" TEXT NOT NULL,
+        "name" TEXT NOT NULL,
+        "dosage" TEXT NOT NULL,
+        "instructions" TEXT,
+        "start_date" DATETIME NOT NULL,
+        "end_date" DATETIME,
+        "colorTag" TEXT NOT NULL DEFAULT 'blue',
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "medicines_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "family_members" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+      );
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "medicine_timings" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "medicine_id" TEXT NOT NULL,
+        "time" TEXT NOT NULL,
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "medicine_timings_medicine_id_fkey" FOREIGN KEY ("medicine_id") REFERENCES "medicines" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+      );
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "dose_logs" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "medicine_id" TEXT NOT NULL,
+        "scheduled_date" TEXT NOT NULL,
+        "scheduled_time" TEXT NOT NULL,
+        "status" TEXT NOT NULL DEFAULT 'pending',
+        "taken_at" DATETIME,
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "dose_logs_medicine_id_fkey" FOREIGN KEY ("medicine_id") REFERENCES "medicines" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+      );
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "dose_logs_medicine_id_scheduled_date_scheduled_time_key" ON "dose_logs"("medicine_id", "scheduled_date", "scheduled_time");
+    `);
+  } catch (err) {
+    console.error('Schema auto-init notice:', err);
+  }
+}
+
 export async function ensureDemoUserExists(): Promise<void> {
   try {
+    await ensureTables();
+
     const existing = await prisma.user.findUnique({
       where: { email: 'demo@medicare.family' },
     });
