@@ -13,9 +13,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Ensure demo user exists on boot
-ensureDemoUserExists().catch(console.error);
-
 // Middleware
 app.use(
   cors({
@@ -66,6 +63,17 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 MediCare Family server running on http://localhost:${PORT}`);
-});
+// Start server after ensuring DB initialization
+const startServer = async () => {
+  try {
+    await ensureDemoUserExists();
+  } catch (err) {
+    console.error('Fatal initialization error:', err);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`🚀 MediCare Family server running on http://localhost:${PORT}`);
+  });
+};
+
+startServer();

@@ -16,6 +16,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    await ensureDemoUserExists();
+
     const existing = await prisma.user.findUnique({
       where: { email: email.toLowerCase().trim() },
     });
@@ -57,16 +59,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    let user = await prisma.user.findUnique({
+    await ensureDemoUserExists();
+
+    const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase().trim() },
     });
-
-    if (!user && email.toLowerCase().trim() === 'demo@medicare.family') {
-      await ensureDemoUserExists();
-      user = await prisma.user.findUnique({
-        where: { email: 'demo@medicare.family' },
-      });
-    }
 
     if (!user) {
       res.status(401).json({ success: false, message: 'Invalid email or password.' });
