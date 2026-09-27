@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../prisma.js';
 import { AuthRequest } from '../middleware/auth.js';
+import { ensureDemoUserExists } from '../services/seedService.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'medicare_family_secret_key_2026';
 
@@ -56,9 +57,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { email: email.toLowerCase().trim() },
     });
+
+    if (!user && email.toLowerCase().trim() === 'demo@medicare.family') {
+      await ensureDemoUserExists();
+      user = await prisma.user.findUnique({
+        where: { email: 'demo@medicare.family' },
+      });
+    }
 
     if (!user) {
       res.status(401).json({ success: false, message: 'Invalid email or password.' });

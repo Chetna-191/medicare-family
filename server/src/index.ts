@@ -6,11 +6,15 @@ import membersRoutes from './routes/members.routes.js';
 import medicinesRoutes from './routes/medicines.routes.js';
 import scheduleRoutes from './routes/schedule.routes.js';
 import adherenceRoutes from './routes/adherence.routes.js';
+import { ensureDemoUserExists } from './services/seedService.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Ensure demo user exists on boot
+ensureDemoUserExists().catch(console.error);
 
 // Middleware
 app.use(
