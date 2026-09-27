@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   HeartPulse,
@@ -15,6 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
 export const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,8 +24,12 @@ export const Login: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDemoSubmitting, setIsDemoSubmitting] = useState(false);
 
-  const { login, register, demoLogin } = useAuth();
+  const { user, login, register, demoLogin } = useAuth();
   const { showToast } = useToast();
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +46,7 @@ export const Login: React.FC = () => {
         await login(email.trim(), password);
         showToast('success', 'Welcome Back!', 'Logged in successfully.');
       }
+      navigate('/');
     } catch (err: any) {
       showToast('error', isRegister ? 'Registration Failed' : 'Login Failed', err.message);
     } finally {
@@ -52,6 +59,7 @@ export const Login: React.FC = () => {
       setIsDemoSubmitting(true);
       await demoLogin();
       showToast('success', 'Demo Account Loaded!', 'Signed in as The Miller Family (3 members, 8 active medications).');
+      navigate('/');
     } catch (err: any) {
       showToast('error', 'Demo Login Failed', err.message);
     } finally {

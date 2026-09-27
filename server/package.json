@@ -20,8 +20,7 @@
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "jsonwebtoken": "^9.0.2",
-    "medicare-family-root": "file:.."
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
