@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background: linear-gradient(135deg, #EAF6F6 0%, #E2F1F8 50%, #E0F0FF 100%);
+    background-attachment: fixed;
+    color: #1e293b;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+}
+
+/* Card Styles with Soft Blue #BFE3F0 Border Tint & Shadow */
+.card-themed {
+  background: #ffffff;
+  border: 1px solid #BFE3F0;
+  box-shadow: 0 4px 20px -2px rgba(42, 157, 143, 0.08), 0 2px 8px -1px rgba(191, 227, 240, 0.45);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-themed:hover {
+  border-color: #2A9D8F;
+  box-shadow: 0 10px 25px -4px rgba(42, 157, 143, 0.15), 0 4px 12px -2px rgba(191, 227, 240, 0.65);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #BFE3F0;
+  box-shadow: 0 4px 20px -2px rgba(42, 157, 143, 0.06), 0 2px 8px -1px rgba(191, 227, 240, 0.4);
+}
+
+.glass-card {
+  background: #ffffff;
+  border: 1px solid #BFE3F0;
+  box-shadow: 0 4px 18px -2px rgba(42, 157, 143, 0.07), 0 2px 8px -1px rgba(191, 227, 240, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: #2A9D8F;
+  box-shadow: 0 10px 25px -4px rgba(42, 157, 143, 0.14), 0 4px 12px -2px rgba(191, 227, 240, 0.6);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94c5d8;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2A9D8F;
+}
+
+/* Animations */
+@keyframes checkmarkStroke {
+  0% {
+    stroke-dashoffset: 50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-checkmark-path {
+  stroke-dasharray: 50;
+  stroke-dashoffset: 0;
+  animation: checkmarkStroke 0.4s ease-in-out forwards;
+}
