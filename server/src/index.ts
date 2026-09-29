@@ -6,6 +6,7 @@ import membersRoutes from './routes/members.routes.js';
 import medicinesRoutes from './routes/medicines.routes.js';
 import scheduleRoutes from './routes/schedule.routes.js';
 import adherenceRoutes from './routes/adherence.routes.js';
+import { ensureDemoUserExists } from './services/seedService.js';
 
 dotenv.config();
 
@@ -15,10 +16,13 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: '*',
+    origin: true,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+app.options('*', cors());
 app.use(express.json());
 
 // Request logging in development
@@ -59,6 +63,17 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 MediCare Family server running on http://localhost:${PORT}`);
-});
+// Start server after ensuring DB initialization
+const startServer = async () => {
+  try {
+    await ensureDemoUserExists();
+  } catch (err) {
+    console.error('Fatal initialization error:', err);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`🚀 MediCare Family server running on http://localhost:${PORT}`);
+  });
+};
+
+startServer();

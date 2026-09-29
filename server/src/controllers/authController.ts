@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../prisma.js';
 import { AuthRequest } from '../middleware/auth.js';
+import { ensureDemoUserExists } from '../services/seedService.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'medicare_family_secret_key_2026';
 
@@ -14,6 +15,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({ success: false, message: 'Email, password, and name are required.' });
       return;
     }
+
+    await ensureDemoUserExists();
 
     const existing = await prisma.user.findUnique({
       where: { email: email.toLowerCase().trim() },
@@ -55,6 +58,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({ success: false, message: 'Email and password are required.' });
       return;
     }
+
+    await ensureDemoUserExists();
 
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase().trim() },

@@ -7,7 +7,24 @@ import type {
   DoseLog,
 } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const LIVE_RENDER_API = 'https://medicare-family.onrender.com/api';
+
+const getApiBase = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && envUrl.trim() !== '') {
+    let url = envUrl.trim().replace(/\/+$/, '');
+    return url.endsWith('/api') ? url : `${url}/api`;
+  }
+  // If running in browser and NOT localhost, automatically use live Render backend
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return LIVE_RENDER_API;
+  }
+  return 'http://localhost:5000/api';
+};
+
+const API_BASE = getApiBase();
+
+import { MockStorage } from './mockStorage';
 
 class ApiService {
   private getToken(): string | null {
@@ -46,13 +63,21 @@ class ApiService {
 
   // --- Auth Endpoints ---
   async login(email: string, password: string): Promise<{ user: User; token: string }> {
-    return this.request<{ user: User; token: string }>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      return await this.request<{ user: User; token: string }>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+    } catch (err) {
+      if (email.toLowerCase().trim() === 'demo@medicare.family') {
+        return MockStorage.activateMock();
+      }
+      throw err;
+    }
   }
 
   async register(name: string, email: string, password: string): Promise<{ user: User; token: string }> {
+    MockStorage.deactivate();
     return this.request<{ user: User; token: string }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
@@ -60,15 +85,26 @@ class ApiService {
   }
 
   async getMe(): Promise<User> {
+    if (MockStorage.isMockActive()) {
+      return { id: 'demo-user-miller', email: 'demo@medicare.family', name: 'The Miller Family' };
+    }
     return this.request<User>('/auth/me');
   }
 
   // --- Family Members Endpoints ---
   async getMembers(): Promise<FamilyMember[]> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.getMembers();
+    }
     return this.request<FamilyMember[]>('/members');
   }
 
   async getMemberById(id: string): Promise<FamilyMember> {
+    if (MockStorage.isMockActive()) {
+      const mem = MockStorage.getMembers().find((m) => m.id === id);
+      if (!mem) throw new Error('Member not found');
+      return mem;
+    }
     return this.request<FamilyMember>(`/members/${id}`);
   }
 
@@ -78,6 +114,9 @@ class ApiService {
     age: number;
     avatarColor?: string;
   }): Promise<FamilyMember> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.createMember(payload);
+    }
     return this.request<FamilyMember>('/members', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -88,6 +127,9 @@ class ApiService {
     id: string,
     payload: { name?: string; relation?: string; age?: number; avatarColor?: string }
   ): Promise<FamilyMember> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.updateMember(id, payload);
+    }
     return this.request<FamilyMember>(`/members/${id}`, {
       method: 'PUT',
       body: JSON.stringify(payload),
@@ -95,6 +137,9 @@ class ApiService {
   }
 
   async deleteMember(id: string): Promise<{ success: boolean; message: string }> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.deleteMember(id);
+    }
     return this.request<{ success: boolean; message: string }>(`/members/${id}`, {
       method: 'DELETE',
     });
@@ -102,11 +147,19 @@ class ApiService {
 
   // --- Medicines Endpoints ---
   async getMedicines(memberId?: string): Promise<Medicine[]> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.getMedicines(memberId);
+    }
     const query = memberId ? `?memberId=${memberId}` : '';
     return this.request<Medicine[]>(`/medicines${query}`);
   }
 
   async getMedicineById(id: string): Promise<Medicine> {
+    if (MockStorage.isMockActive()) {
+      const med = MockStorage.getMedicines().find((m) => m.id === id);
+      if (!med) throw new Error('Medicine not found');
+      return med;
+    }
     return this.request<Medicine>(`/medicines/${id}`);
   }
 
@@ -120,6 +173,9 @@ class ApiService {
     timings: string[];
     colorTag?: string;
   }): Promise<Medicine> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.createMedicine(payload);
+    }
     return this.request<Medicine>('/medicines', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -138,6 +194,9 @@ class ApiService {
       colorTag?: string;
     }
   ): Promise<Medicine> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.updateMedicine(id, payload);
+    }
     return this.request<Medicine>(`/medicines/${id}`, {
       method: 'PUT',
       body: JSON.stringify(payload),
@@ -145,6 +204,9 @@ class ApiService {
   }
 
   async deleteMedicine(id: string): Promise<{ success: boolean; message: string }> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.deleteMedicine(id);
+    }
     return this.request<{ success: boolean; message: string }>(`/medicines/${id}`, {
       method: 'DELETE',
     });
@@ -152,6 +214,9 @@ class ApiService {
 
   // --- Schedule Endpoints ---
   async getDailySchedule(date?: string): Promise<DailyScheduleResponse> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.getDailySchedule(date);
+    }
     const query = date ? `?date=${date}` : '';
     return this.request<DailyScheduleResponse>(`/schedule${query}`);
   }
@@ -162,6 +227,9 @@ class ApiService {
     scheduledTime: string;
     status: 'pending' | 'taken' | 'skipped' | 'missed';
   }): Promise<DoseLog> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.updateDoseStatus(payload);
+    }
     return this.request<DoseLog>('/schedule/status', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -170,6 +238,9 @@ class ApiService {
 
   // --- Adherence Analytics Endpoints ---
   async getAdherenceStats(days: number = 7): Promise<AdherenceStatsResponse> {
+    if (MockStorage.isMockActive()) {
+      return MockStorage.getAdherenceStats(days);
+    }
     return this.request<AdherenceStatsResponse>(`/adherence?days=${days}`);
   }
 }

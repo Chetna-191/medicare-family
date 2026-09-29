@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MediCare Family - Complete User Manual & Technical Architecture Guide</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 15mm 18mm 15mm;
+  }
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+  }
+  .header {
+    border-bottom: 3px solid #0f766e;
+    padding-bottom: 14px;
+    margin-bottom: 24px;
+  }
+  .header h1 {
+    margin: 0;
+    color: #0f766e;
+    font-size: 26px;
+    font-weight: 800;
+  }
+  .header .tagline {
+    color: #64748b;
+    font-size: 13px;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  h2 {
+    color: #0f766e;
+    font-size: 17px;
+    border-bottom: 1.5px solid #ccfbf1;
+    padding-bottom: 6px;
+    margin-top: 24px;
+    margin-bottom: 10px;
+    page-break-after: avoid;
+  }
+  h3 {
+    color: #334155;
+    font-size: 14px;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px 0;
+    font-size: 12px;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #f0fdfa;
+    color: #0f766e;
+    font-weight: 700;
+  }
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+  .card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #0f766e;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 10px 0;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: bold;
+    background-color: #ccfbf1;
+    color: #0f766e;
+  }
+  ul, ol {
+    margin-top: 4px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+  code {
+    background-color: #f1f5f9;
+    color: #0f766e;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: Consolas, monospace;
+    font-size: 11px;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🩺 MediCare Family</h1>
+  <div class="tagline">Medicine Reminder & Family Schedule Manager — System Guide & User Manual</div>
+</div>
+
+<h2>1. Executive Summary & Overview</h2>
+<p>
+  <strong>MediCare Family</strong> is a full-stack web application designed to solve medication mismanagement in multi-generational households. It centralizes prescription schedules, prevents conflicting and duplicate doses, enables instant 1-click dose tracking, and provides 7-day adherence analytics.
+</p>
+
+<div class="card">
+  <strong>Key Objectives Solved:</strong>
+  <ul>
+    <li><strong>Multi-Member Routines:</strong> Individual profiles for elderly grandparents, parents, and children under one family login.</li>
+    <li><strong>Zero Duplicates:</strong> Strict backend logic prevents overlapping prescription names and duplicate daily timings.</li>
+    <li><strong>Interactive Accountability:</strong> 1-click dose logging (Taken / Skip / Undo) with real-time adherence scoring and streak tracking.</li>
+  </ul>
+</div>
+
+<h2>2. Complete Technology Stack</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Layer</th>
+      <th>Technologies / Libraries</th>
+      <th>Description & Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Frontend UI</strong></td>
+      <td>React 18 + TypeScript + Vite</td>
+      <td>Modern reactive single-page application with type safety and fast compilation.</td>
+    </tr>
+    <tr>
+      <td><strong>Styling & Design</strong></td>
+      <td>Tailwind CSS</td>
+      <td>Custom health-oriented color tokens, accessible contrast, and responsive layout.</td>
+    </tr>
+    <tr>
+      <td><strong>Visual Effects</strong></td>
+      <td>Lucide Icons, Framer Motion, Confetti</td>
+      <td>Micro-animations, status icons, and celebration cues on completed doses.</td>
+    </tr>
+    <tr>
+      <td><strong>Analytics & Charts</strong></td>
+      <td>Recharts</td>
+      <td>Interactive Bar and Line Charts for scheduled vs. taken doses over 7 to 14 days.</td>
+    </tr>
+    <tr>
+      <td><strong>Backend Server</strong></td>
+      <td>Node.js + Express (TypeScript)</td>
+      <td>RESTful API architecture with route controllers, validation, and JWT auth middleware.</td>
+    </tr>
+    <tr>
+      <td><strong>Database & ORM</strong></td>
+      <td>Prisma ORM + SQLite</td>
+      <td>Type-safe database querying, declarative schema, and cascading deletion.</td>
+    </tr>
+    <tr>
+      <td><strong>Security</strong></td>
+      <td>JWT + Bcrypt.js</td>
+      <td>Encrypted user passwords (10 salt rounds) and stateless token validation.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>3. Step-by-Step Page & Feature Operation Guide</h2>
+
+<h3>A. Authentication & Demo Mode (<code>/login</code>)</h3>
+<ul>
+  <li><strong>1-Click Instant Demo Login:</strong> Click <em>"Sign In as Demo Family (1-Click)"</em> to instantly explore pre-configured data for <strong>The Miller Family</strong> (Arthur, Sarah, Leo) with 8 active medications and 7-day historical logs.</li>
+  <li><strong>Standard Login:</strong> Enter email (<code>demo@medicare.family</code>) and password (<code>demo1234</code>) and click <em>"Sign In to Dashboard"</em>.</li>
+  <li><strong>Register New Family:</strong> Click <em>"Don't have an account yet? Create one"</em>, input family name, email, and password to initialize a fresh, isolated workspace.</li>
+</ul>
+
+<h3>B. Dashboard & Daily Schedule (<code>/</code>)</h3>
+<ul>
+  <li><strong>Daily Progress Overview:</strong> Real-time progress bar showing today's taken vs. pending doses and adherence percentage.</li>
+  <li><strong>Date Switcher:</strong> Navigate rapidly using <em>"Yesterday"</em>, <em>"Today"</em>, <em>"Tomorrow"</em>, or select any custom date via the calendar picker.</li>
+  <li><strong>Multi-Filter:</strong> Filter visible doses by specific family member or by time of day (Morning: 00:00-11:59, Afternoon: 12:00-16:59, Evening: 17:00-23:59).</li>
+  <li><strong>1-Click Dose Actions:</strong>
+    <ul>
+      <li><strong>"Mark Taken":</strong> Marks dose completed, records exact timestamp, and triggers celebration confetti.</li>
+      <li><strong>"Skip":</strong> Logs dose as intentionally skipped.</li>
+      <li><strong>"Undo":</strong> Reverts accidental clicks back to pending status.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>C. Family Members Management (<code>/members</code>)</h3>
+<ul>
+  <li><strong>Add Member:</strong> Click <em>"+ Add Member"</em>, enter name, relation (Grandfather, Mother, Child, etc.), age, and choose a custom avatar theme.</li>
+  <li><strong>Individual Member Profile (<code>/members/:id</code>):</strong> View personalized adherence rates, all active prescriptions, and quickly add medicines specifically for that member.</li>
+  <li><strong>Edit / Delete:</strong> Update member details or remove members with automatic cascade cleanup of their medications and logs.</li>
+</ul>
+
+<h3>D. Medicine & Prescription Scheduling (<code>/medicines</code>)</h3>
+<ul>
+  <li><strong>Add Prescription:</strong> Click <em>"+ Add Medicine"</em>, choose member, enter medication name, dosage (e.g., <code>500mg</code>, <code>1 tablet</code>), instructions, and start/end dates.</li>
+  <li><strong>Multi-Timing Presets:</strong> Add one or multiple daily dosing times using fast presets (<em>Morning 08:00, Noon 13:00, Night 20:30</em>) or custom 24-hr entries.</li>
+  <li><strong>Backend Duplicate Validation:</strong> Automatically blocks identical medicine names for the same member during overlapping date intervals.</li>
+</ul>
+
+<h3>E. Adherence Analytics (<code>/adherence</code>)</h3>
+<ul>
+  <li><strong>7-Day & 14-Day View:</strong> Toggle historical windows to monitor consistency trends.</li>
+  <li><strong>Streak Counter:</strong> Shows consecutive days of 100% medication compliance (e.g. <em>🔥 6-Day Perfect Streak</em>).</li>
+  <li><strong>Interactive Charts:</strong> Visual comparison of daily scheduled doses vs. taken doses across all members.</li>
+  <li><strong>Weekly Status Grid:</strong> Per-member matrix breakdown indicating daily completed vs. missed doses.</li>
+</ul>
+
+<h2>4. Quick Action Cheat Sheet</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Goal / Action</th>
+      <th>Location in Application</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>View Today's Medicine List</td>
+      <td><strong>Dashboard (<code>/</code>)</strong></td>
+    </tr>
+    <tr>
+      <td>Mark Medicine Taken</td>
+      <td>Click <strong>"Mark Taken"</strong> (Green button) on any dose card</td>
+    </tr>
+    <tr>
+      <td>Add New Family Profile</td>
+      <td>Top Navbar ➔ Click <strong>"+ Add Member"</strong></td>
+    </tr>
+    <tr>
+      <td>Schedule New Medication</td>
+      <td>Top Navbar ➔ Click <strong>"+ Add Medicine"</strong></td>
+    </tr>
+    <tr>
+      <td>Inspect Charts & Streaks</td>
+      <td>Sidebar ➔ Click <strong>"Adherence"</strong></td>
+    </tr>
+    <tr>
+      <td>Switch User / Sign Out</td>
+      <td>Top Navbar ➔ Click <strong>"Logout"</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>
